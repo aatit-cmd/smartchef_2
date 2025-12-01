@@ -35,9 +35,12 @@
             {% endif %}
 
             <h4>{{ recipe.title }}</h4>
-            <small>
-                <span>{{ recipe.user.username }}</span>
-            </small>
+            <div class="recipe-meta">
+                <span class="likes">❤️ {{ recipe.total_likes }}</span>
+                <span class="username">{{ recipe.user.username }}</span>
+            </div>
+            
+           
         </a>
     {% empty %}
         <!-- no recipes -->

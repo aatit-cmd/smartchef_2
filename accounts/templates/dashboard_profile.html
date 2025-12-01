@@ -66,6 +66,7 @@
                 <h4>{{ recipe.title }}</h4>
             </a>
 
+
             {% if request.user == recipe.user %}
                 <a href="{% url 'delete_recipe' recipe.id %}" 
                    onclick="return confirm('Delete this recipe?');"
