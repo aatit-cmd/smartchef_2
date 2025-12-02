@@ -363,9 +363,6 @@ def settings_page(request):
 
 @login_required
 def delete_account(request):
-    """
-    Deletes the current user's account.
-    """
     if request.method == "POST":
         user = request.user
         logout(request)

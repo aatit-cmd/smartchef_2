@@ -15,7 +15,6 @@ class Profile(models.Model):
     upload_to='profile_pics/',
     blank=True,
     null=True,
-    default='profile_pics/default.jpeg',  # <- default image
 )
 
     def __str__(self):

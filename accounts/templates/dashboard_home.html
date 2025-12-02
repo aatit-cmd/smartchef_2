@@ -13,8 +13,13 @@
                 <div class="user-card">
                     <a href="{% url 'dashboard_profile' username=user.username %}">
                         {% if user.profile.profile_image %}
-                            <img src="{{ user.profile.profile_image.url }}" alt="{{ user.username }}" style="width:80px; height:80px; border-radius:50%;">
+                            <img src="{{ user.profile.profile_image.url }}" alt="{{ user.username }}" 
+                                style="width:80px; height:80px; border-radius:50%;">
+                        {% else %}
+                            <img src="{% static 'images/default.jpg' %}" alt="{{ user.username }}"
+                                style="width:80px; height:80px; border-radius:50%;">
                         {% endif %}
+
                         <p>{{ user.username }}</p>
                     </a>
                 </div>
