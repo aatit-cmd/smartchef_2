@@ -340,10 +340,6 @@ def my_profile(request):
 
 @login_required
 def settings_page(request):
-    """
-    Renders the settings page with options to change password and delete account.
-    Handles password change form submission.
-    """
     password_form = PasswordChangeForm(user=request.user)
 
     if request.method == "POST":
@@ -363,12 +359,6 @@ def settings_page(request):
 
 @login_required
 def delete_account(request):
-    if request.method == "POST":
-        user = request.user
-        logout(request)
-        user.delete()
-        messages.success(request, "Your account has been deleted.")
-        return redirect("login")
     return render(request, "delete_account.html")
 
 

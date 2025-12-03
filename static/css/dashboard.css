@@ -824,6 +824,18 @@ textarea:focus {
     color: white;
 }
 
+.alert.error {
+    background-color: #ffdddd;
+    color: #b30000;
+    border: 1px solid #ff5c5c;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+
+
 
 
 
