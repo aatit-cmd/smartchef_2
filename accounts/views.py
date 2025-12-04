@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Recipe, Comment, Profile, Follow,Reply
+from .models import Recipe, Comment, Profile, Follow,Reply, Notification
 from django.db.models import Q
 from django.dispatch import receiver
 from django.db.models.signals import post_save
@@ -119,10 +119,13 @@ def dashboard_home(request):
     else:
         users = User.objects.none()  # empty queryset if no search
 
+    unread_notifications_count = request.user.notifications.filter(is_read=False).count()
+
     return render(request, 'dashboard_home.html', {
         'recipes': recipes,
         'users': users,
-        'query': query
+        'query': query,
+        'unread_notifications_count': unread_notifications_count,
     })
 
 
@@ -215,11 +218,18 @@ def edit_profile(request):
 def recipe_detail(request, recipe_id):
     recipe = get_object_or_404(Recipe, id=recipe_id)
     if request.method == 'POST':
-        # Add comment
         content = request.POST.get('content')
         if content:
-            Comment.objects.create(user=request.user, recipe=recipe, content=content)
+            comment = Comment.objects.create(user=request.user, recipe=recipe, content=content)
+            if request.user != recipe.user:
+                Notification.objects.create(
+                    user=recipe.user,
+                    from_user=request.user,
+                    notif_type='comment',
+                    text=f"{request.user.username} commented on your recipe '{recipe.title}'"
+                )
     return render(request, 'recipe_detail.html', {'recipe': recipe})
+
     
 # Like / Unlike recipe
 @login_required
@@ -227,11 +237,17 @@ def like_recipe(request, recipe_id):
     recipe = get_object_or_404(Recipe, id=recipe_id)
     if request.user in recipe.likes.all():
         recipe.likes.remove(request.user)
-        messages.success(request, "You unliked the recipe.")
     else:
         recipe.likes.add(request.user)
-        messages.success(request, "You liked the recipe.")
+        if request.user != recipe.user:
+            Notification.objects.create(
+                user=recipe.user,
+                from_user=request.user,
+                notif_type='like',
+                text=f"{request.user.username} liked your recipe '{recipe.title}'"
+            )
     return redirect(request.META.get('HTTP_REFERER', 'dashboard_home'))
+
 
 
 @login_required
@@ -258,8 +274,16 @@ def delete_recipe(request, recipe_id):
 @login_required
 def follow_user(request, user_id):
     user_to_follow = get_object_or_404(User, id=user_id)
-    Follow.objects.get_or_create(follower=request.user, following=user_to_follow)
+    obj, created = Follow.objects.get_or_create(follower=request.user, following=user_to_follow)
+    if created and request.user != user_to_follow:
+        Notification.objects.create(
+            user=user_to_follow,
+            from_user=request.user,
+            notif_type='follow',
+            text=f"{request.user.username} started following you"
+        )
     return redirect('dashboard_profile', username=user_to_follow.username)
+
 
 @login_required
 def unfollow_user(request, user_id):
@@ -394,17 +418,36 @@ def delete_account(request):
 @login_required
 def add_reply(request, recipe_id, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
+    recipe = comment.recipe
 
     if request.method == "POST":
         reply_text = request.POST.get("reply")
 
-        Reply.objects.create(
+        reply = Reply.objects.create(
             comment=comment,
             user=request.user,
             content=reply_text
         )
 
+       # --- Notifications ---
+        # 1. Notify recipe owner if they are not the one replying
+        if recipe.user != request.user:
+            Notification.objects.create(
+                user=recipe.user,
+                from_user=request.user,  # <-- set this!
+                text=f"{request.user.username} replied to a comment on your recipe '{recipe.title}'"
+            )
+
+        # 2. Notify the original comment owner (if different from recipe owner and replier)
+        if comment.user != recipe.user and comment.user != request.user:
+            Notification.objects.create(
+                user=comment.user,
+                from_user=request.user,  # <-- set this!
+                text=f"{request.user.username} replied to your comment on '{recipe.title}'"
+            )
+
     return redirect("recipe_detail", recipe_id=recipe_id)
+
 
 
 @login_required
@@ -434,11 +477,6 @@ def delete_reply(request, recipe_id, reply_id):
 
 
 
-
-
-
-
-
 @login_required
 def recipe_likes_list(request, recipe_id):
     recipe = get_object_or_404(Recipe, id=recipe_id)
@@ -450,4 +488,29 @@ def recipe_likes_list(request, recipe_id):
         "recipe": recipe,
         "liked_users": liked_users
     })
+
+
+
+
+@login_required
+def notifications_view(request):
+    notifications = request.user.notifications.all().order_by('-created_at')
+
+    # Mark all unread as read
+    notifications.filter(is_read=False).update(is_read=True)
+
+    return render(request, "notifications.html", {
+        "notifications": notifications,
+    })
+
+@login_required
+@csrf_exempt
+def mark_notifications_read(request):
+    if request.method == "POST":
+        # Update all unread notifications for the user
+        request.user.notifications.filter(is_read=False).update(is_read=True)
+        return JsonResponse({'status': 'ok'})
+    return JsonResponse({'status': 'error'}, status=400)
+
+
 

@@ -42,6 +42,9 @@ urlpatterns = [
 
     
 
+    path('notifications/mark-read/', views.mark_notifications_read, name='mark_notifications_read'),
+    path('notifications/', views.notifications_view, name='notifications'),
+
 
 
 

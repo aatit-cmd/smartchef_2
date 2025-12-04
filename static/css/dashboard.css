@@ -155,6 +155,75 @@ button {
     transform: rotate(25deg);
 }
 
+.notification-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-right: 1rem;
+    cursor: pointer;
+}
+
+.notification-icon {
+    position: relative;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background-color: red;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 5px;
+    border-radius: 50%;
+}
+
+
+.notif-count {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background: red;
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 2px 5px;
+    border-radius: 50%;
+}
+
+.notif-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 25px;
+    background: #fff;
+    border: 1px solid #ccc;
+    width: 250px;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 100;
+}
+
+.notification-wrapper:hover .notif-dropdown {
+    display: block;
+}
+
+.notif-item {
+    padding: 0.5rem;
+    border-bottom: 1px solid #eee;
+    font-size: 0.85rem;
+}
+
+.notif-item.unread {
+    background-color: #f0f0f0;
+    font-weight: bold;
+}
+
+.notif-time {
+    display: block;
+    font-size: 0.7rem;
+    color: #666;
+}
 
 
 
@@ -755,6 +824,16 @@ ul li {
 
 .comments-section form button:hover {
     background: #e5832d;
+}
+
+.comments-section .comment-pfp {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+    vertical-align: middle;
+    margin-bottom: 10px;
 }
 
 /* Replies */
@@ -1374,7 +1453,7 @@ textarea:focus {
 
 
 
-
+/* WHO LIKES PAGE */
 .likes-container {
     max-width: 600px;
     margin: 2rem auto;
@@ -1447,4 +1526,86 @@ textarea:focus {
     text-align: center;
     color: #777;
     margin-bottom: 20px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* NOTIFICATIIONS PAGE */
+
+.notifications-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.notifications-list {
+    list-style: none;
+    padding: 0;
+}
+
+.notification-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    transition: background 0.3s;
+}
+
+.notification-item.unread {
+    background-color: #f0f8ff; /* light blue for unread */
+}
+
+.notification-item:hover {
+    background-color: #f9f9f9;
+}
+
+.notification-item img.profile-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 15px;
+    object-fit: cover;
+}
+
+.notification-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.notif-link {
+    font-weight: 500;
+    color: #333;
+    text-decoration: none;
+}
+
+.notif-link:hover {
+    text-decoration: underline;
+}
+
+.notif-time {
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: 3px;
+}
+
+.no-notifs {
+    text-align: center;
+    color: #666;
+    margin-top: 20px;
 }

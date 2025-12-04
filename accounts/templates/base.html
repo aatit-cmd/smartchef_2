@@ -24,12 +24,22 @@
         </form>
     </div>
 
+    
     <nav class="nav-links">
         <a href="{% url 'dashboard_home' %}" title="Home"><i class="fas fa-home"></i></a>
         <a href="{% url 'dashboard_profile' request.user.username %}" title="Profile"><i class="fas fa-user"></i></a>
-        
+        <a href="{% url 'notifications' %}" class="notification-icon">
+            <i class="fas fa-bell"></i>
+            {% if unread_notifications_count > 0 %}
+                <span class="notification-badge">{{ unread_notifications_count }}</span>
+            {% endif %}
+        </a>
+
         <a href="{% url 'settings' %}" class="settings-icon" title="Settings"><i class="fas fa-cog"></i></a>
     </nav>
+
+
+
 </header>
 
 <!-- Messages -->
@@ -60,7 +70,40 @@
             setTimeout(() => messages.remove(), 600);
         }
     }, 1200);
+
+    document.addEventListener("DOMContentLoaded", () => {
+    const notifWrapper = document.querySelector('.notification-wrapper');
+    const notifCount = document.querySelector('.notif-count');
+
+    notifWrapper.addEventListener('mouseenter', () => {
+        // Only send request if there are unread notifications
+        if (notifCount && parseInt(notifCount.textContent) > 0) {
+            fetch("{% url 'mark_notifications_read' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',  // ensure CSRF token is included
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    // Set the count badge to 0 immediately
+                    notifCount.textContent = 0;
+
+                    // Optionally, remove the "unread" highlight
+                    document.querySelectorAll('.notif-item.unread').forEach(item => {
+                        item.classList.remove('unread');
+                    });
+                }
+            })
+            .catch(err => console.error('Error marking notifications read:', err));
+        }
+    });
+});
+
 </script>
+
 
 </body>
 </html>

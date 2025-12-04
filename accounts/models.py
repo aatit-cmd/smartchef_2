@@ -128,5 +128,24 @@ class Follow(models.Model):
         return f"{self.follower.username} follows {self.following.username}"
 
 
+class Notification(models.Model):
+    NOTIF_TYPES = [
+        ('like', 'Like'),
+        ('comment', 'Comment'),
+        ('follow', 'Follow'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    from_user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    notif_type = models.CharField(max_length=10, choices=NOTIF_TYPES)
+    text = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.notif_type}"
 
 

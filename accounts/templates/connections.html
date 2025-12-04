@@ -17,7 +17,8 @@
     <ul class="followers-list">
         {% for f in followers %}
             <li>
-                <img src="{{ f.user.profile.profile_image.url }}" alt="">
+                <img src="{% if f.user.profile.profile_image %}{{ f.user.profile.profile_image.url }}{% else %}{% static 'images/default.jpg' %}{% endif %}" alt="">
+
                 <a href="{% url 'dashboard_profile' f.user.username %}">
                     <span>{{ f.user.username }}</span>
                 </a>
@@ -40,7 +41,8 @@
     <ul class="followers-list">
         {% for f in following %}
             <li>
-                <img src="{{ f.user.profile.profile_image.url }}" alt="">
+                <img src="{% if f.user.profile.profile_image %}{{ f.user.profile.profile_image.url }}{% else %}{% static 'images/default.jpg' %}{% endif %}" alt="">
+
                 <a href="{% url 'dashboard_profile' f.user.username %}" class="username">
                     <span>{{ f.user.username }}</span>
                 </a>

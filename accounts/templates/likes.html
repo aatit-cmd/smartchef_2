@@ -9,7 +9,11 @@
         <ul class="likes-list">
             {% for user in liked_users %}
                 <li class="like-item">
-                    <img src="{{ user.profile.profile_image.url }}" class="profile-small">
+                    {% if user.profile.profile_image %}
+                        <img src="{{ user.profile.profile_image.url }}" class="profile-small">
+                    {% else %}
+                        <img src="{% static 'images/default.jpg' %}" class="profile-small">
+                    {% endif %}
                     <a href="{% url 'dashboard_profile' user.username %}" class="user-link">
                         {{ user.username }}
                     </a>

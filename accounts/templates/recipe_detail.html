@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% load static %}
+{% load humanize %}
 {% block title %}{{ recipe.title }}{% endblock %}
 
 {% block content %}
@@ -116,7 +118,10 @@
 
             <!-- Comment content -->
             <p>
-                <br><strong>{{ comment.user.username }}</strong></br>
+                <img src="{% if comment.user.profile.profile_image %}{{ comment.user.profile.profile_image.url }}{% else %}{% static 'images/default.jpg' %}{% endif %}" alt="" class="comment-pfp">
+
+
+                <strong>{{ comment.user.username }}</strong><br>
                 {{ comment.content }}
                 <br></br>
 
@@ -154,6 +159,7 @@
             <!-- Show replies -->
             {% for reply in comment.replies.all %}
                 <div class="reply">
+                    <img src="{% if reply.user.profile.profile_image %}{{ reply.user.profile.profile_image.url }}{% else %}{% static 'images/default.jpg' %}{% endif %}" alt="" class="comment-pfp">
                     <strong>{{ reply.user.username }} : </strong>
                     {{ reply.content }}
                     <br></br>
