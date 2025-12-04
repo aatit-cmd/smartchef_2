@@ -18,7 +18,7 @@
 
                     <div class="notification-text">
                         <a href="{{ notification.link }}" class="notif-link">
-                            {{ notification.text|add:"." }}
+                            {{ notification.text }}
                         </a>
                         <span class="notif-time">{{ notification.created_at|naturaltime }}</span>
                     </div>

@@ -226,7 +226,7 @@ def recipe_detail(request, recipe_id):
                     user=recipe.user,
                     from_user=request.user,
                     notif_type='comment',
-                    text=f"{request.user.username} commented on your recipe '{recipe.title}'"
+                    text=f"{request.user.username} commented on your recipe '{recipe.title}.'"
                 )
     return render(request, 'recipe_detail.html', {'recipe': recipe})
 
@@ -237,14 +237,16 @@ def like_recipe(request, recipe_id):
     recipe = get_object_or_404(Recipe, id=recipe_id)
     if request.user in recipe.likes.all():
         recipe.likes.remove(request.user)
+        messages.success(request, "Like removed.")
     else:
         recipe.likes.add(request.user)
+        messages.success(request, "Recipe liked.")
         if request.user != recipe.user:
             Notification.objects.create(
                 user=recipe.user,
                 from_user=request.user,
                 notif_type='like',
-                text=f"{request.user.username} liked your recipe '{recipe.title}'"
+                text=f"{request.user.username} liked your recipe '{recipe.title}.'"
             )
     return redirect(request.META.get('HTTP_REFERER', 'dashboard_home'))
 
@@ -280,7 +282,7 @@ def follow_user(request, user_id):
             user=user_to_follow,
             from_user=request.user,
             notif_type='follow',
-            text=f"{request.user.username} started following you"
+            text=f"{request.user.username} started following you."
         )
     return redirect('dashboard_profile', username=user_to_follow.username)
 
@@ -457,8 +459,24 @@ def delete_comment(request, recipe_id, comment_id):
 
     # Only recipe owner OR comment owner can delete
     if request.user == comment.user or request.user == recipe.user:
+        # --- Notifications before deletion ---
+        if recipe.user != request.user:
+            Notification.objects.create(
+                user=recipe.user,
+                from_user=request.user,
+                text=f"{request.user.username} deleted a comment on your recipe '{recipe.title}'"
+            )
+        
+        if comment.user != recipe.user and comment.user != request.user:
+            Notification.objects.create(
+                user=comment.user,
+                from_user=request.user,
+                text=f"{request.user.username} deleted your comment on '{recipe.title}'"
+            )
+        messages.success(request, "Comment deleted.")
         comment.delete()
 
+     
     return redirect("recipe_detail", recipe_id=recipe_id)
 
 
@@ -471,6 +489,29 @@ def delete_reply(request, recipe_id, reply_id):
 
     # Only reply owner OR recipe owner can delete
     if request.user == reply.user or request.user == recipe.user:
+
+     # --- Notifications before deletion ---
+        if recipe.user != request.user:
+            Notification.objects.create(
+                user=recipe.user,
+                from_user=request.user,
+                text=f"{request.user.username} deleted a reply on your recipe '{recipe.title}'"
+            )
+        
+        if reply.user != recipe.user and reply.user != request.user:
+            Notification.objects.create(
+                user=reply.user,
+                from_user=request.user,
+                text=f"{request.user.username} deleted your reply on '{recipe.title}'"
+            )
+
+        if comment.user != recipe.user and comment.user != request.user and comment.user != reply.user:
+            Notification.objects.create(
+                user=comment.user,
+                from_user=request.user,
+                text=f"{request.user.username} deleted a reply on your comment in '{recipe.title}'"
+            )
+        messages.success(request, "Reply deleted.")
         reply.delete()
 
     return redirect("recipe_detail", recipe_id=recipe_id)
